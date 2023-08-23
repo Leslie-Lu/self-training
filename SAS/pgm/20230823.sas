@@ -1,16 +1,5 @@
-/*libname ex "\\scnwex\Book\Data";*/
-
-proc univariate data=sashelp.fish plot ;
-	where species="Bream";
-	title "Descriptive Statistics Using Proc Univariate";
-	var height;
-	histogram /normal(mu=est sigma=est) kernel;
-/*	probplot/normal(mu=est sigma=est);*/
-	inset skewness kurtosis/ position=ne;
-run;
 
 **ex10.1**;
-
 proc means data=sashelp.fish maxdec=2 n mean std stderr clm;
 	where species="Bream";
 	var height;
@@ -38,7 +27,7 @@ run;
 
 
 ***ex10.4***;
-
+/*libname ex "\\scnwex\Book\Data";*/
 proc ttest data=ex.score plots(shownull)=interval;
 	class gender;
 	var score;
