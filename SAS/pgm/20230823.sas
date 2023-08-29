@@ -7,27 +7,26 @@ proc means data=sashelp.fish maxdec=2 n mean std stderr clm;
 run;
 
 **ex10.2**;
+**one sample t test**; 
 proc univariate data=sashelp.fish mu0=14;
 	where species="Bream";
 	var height;
 	title "Testing whether the mean of Bream height = 14 ";
 run;
-
-**ex10.3***;
-proc ttest data=A h0=1.02 plot(shownull)=interval;
-	var k;
-run;
-
-proc ttest data=sashelp.fish h0=14/* plots(shownull)=interval*/;
+**equal to ex10.3***;
+ods graphics on;
+proc ttest data=sashelp.fish h0=14 plots(shownull)=interval;
 	where species="Bream";
 	var height;
 	title "Testing whether the mean of Bream height = 14 "
 	      "Using PROC TTEST";
 run;
 
-
 ***ex10.4***;
-/*libname ex "\\scnwex\Book\Data";*/
+***two sample t test***;
+libname ex "C:\Library\Applications\Typora\data\self-training\SAS\data";
+proc contents data= ex.score;
+run;
 proc ttest data=ex.score plots(shownull)=interval;
 	class gender;
 	var score;
@@ -35,25 +34,26 @@ proc ttest data=ex.score plots(shownull)=interval;
 run;
 
 ***ex10.5***;
+***use summary statistics to perform two sample t test***;
 proc sort data=ex.score;
    by gender;
 run;
-
 proc means data=ex.score noprint;
+	by gender;
    var score;
-   by gender;
    output out=work.summary;
 run;
-
 proc print data=work.summary;
-title "Work.Summary";
+	title "Work.Summary";
 run;
-
 proc ttest data=work.summary;
 	class gender;
 	var score;
 	title "Two Sample t test for Boys and Girls Using Summary Statistics";
 run;
+
+
+
 
 ****ex10.6*******;
 proc ttest data=ex.score plots(shownull)=interval sides=U;
