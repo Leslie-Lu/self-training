@@ -6,7 +6,6 @@ This script shows how to
 - Compare the values from the t-distribution with those of a normal distribution
 """
 
-# author: Thomas Haslwanter, date: Feb-2021
 
 # Import standard packages
 import numpy as np
@@ -24,8 +23,9 @@ def check_mean() -> float:
     """
     
     # Get data from Altman
-    inFile = 'altman_91.txt'
+    inFile = 'C:/Library/Applications/Typora/data/self-training/Python/data/altman_91.txt'
     data = np.genfromtxt(inFile, delimiter=',')
+    # data
 
     # Watch out: by default the standard deviation in numpy is calculated
     # with ddof=0, corresponding to 1/N!
@@ -34,9 +34,13 @@ def check_mean() -> float:
     print(f'Mean and SD: {myMean:4.2f} and {mySD:4.2f}')
 
     # Confidence intervals
-    tf = stats.t(len(data)-1)
+    tf = stats.t(len(data)-1) #df
+    # tf.isf(0.05/2)
+    # stats.norm.isf(0.05/2)
     # multiplication with np.array[-1,1] is a neat trick to implement "+/-"
     ci = np.mean(data) + stats.sem(data)*np.array([-1,1])*tf.ppf(0.975)
+    # equal to
+    # ci= stats.t.interval(1-0.05, len(data)-1, loc= np.mean(data), scale= stats.sem(data))
     print(f'The confidence intervals are {ci[0]:4.2f} to {ci[1]:4.2f}.')
 
     # Check if there is a significant difference relative to "checkValue"
