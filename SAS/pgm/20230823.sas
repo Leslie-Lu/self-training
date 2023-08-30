@@ -52,10 +52,8 @@ proc ttest data=work.summary;
 	title "Two Sample t test for Boys and Girls Using Summary Statistics";
 run;
 
-
-
-
 ****ex10.6*******;
+**one sided t test**;
 proc ttest data=ex.score plots(shownull)=interval sides=U;
 	class gender;
 	var score;
@@ -63,10 +61,10 @@ proc ttest data=ex.score plots(shownull)=interval sides=U;
 run;
 
 ***ex 10.7***;
-
+***paired t test***;
 data work.pressure;
-         input SBPbefore SBPafter @@;
-         datalines;
+	input SBPbefore SBPafter @@;
+	datalines;
    120 128   124 131   130 131   118 127
    140 132   128 125   140 141   135 137
    126 118   130 132   126 129   127 135
@@ -76,6 +74,10 @@ proc ttest data=work.pressure;
   	paired SBPbefore*SBPafter;
 	title "Testing the difference before and after stimulus";
 run;
+
+
+
+
 
 **ex10.8****;
 proc npar1way data=ex.service wilcoxon median ;
