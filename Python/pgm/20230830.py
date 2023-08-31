@@ -31,7 +31,7 @@ def check_mean() -> float:
     # with ddof=0, corresponding to 1/N!
     myMean = np.mean(data)
     mySD = np.std(data, ddof=1)     # sample standard deviation
-    print(f'Mean and SD: {myMean:4.2f} and {mySD:4.2f}')
+    print(f'Mean and SD: {myMean:4.2f} and {mySD:4.2f}.')
 
     # Confidence intervals
     tf = stats.t(len(data)-1) #df
@@ -59,7 +59,7 @@ def check_mean() -> float:
       issignificant = 'likely'
     # --- >>> STOP stats <<< ---
       
-    print(f'It is ' + issignificant + ' that the value is {checkValue:d}')
+    print(f'It is ' + issignificant + f' that the value is {checkValue:d}.')
     
     return prob # should be 0.018137235176105802
  
@@ -87,12 +87,11 @@ def compareWithNormal() -> float:
     # Comparison with corresponding normal distribution
     mmean = np.mean(data)
     mstd = np.std(data, ddof=1)
-    normProb = stats.norm.cdf(checkVal, loc=mmean,
-            scale=mstd/np.sqrt(len(data)))*2
+    normProb = stats.norm.cdf(checkVal, loc=mmean, scale=mstd/np.sqrt(len(data)))*2
 
     # compare
     print(f'The probability from the t-test is {tProb:5.4f}, ' + 
-          f'and from the normal distribution {normProb:5.4f}')
+          f'and from the normal distribution {normProb:5.4f}.')
     
     return normProb # should be 0.054201154690070759
            
