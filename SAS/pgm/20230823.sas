@@ -1,4 +1,7 @@
 
+libname ex base "C:\Library\Applications\Typora\data\self-training\SAS\data";
+ods graphics on;
+
 **ex10.1**;
 proc means data=sashelp.fish maxdec=2 n mean std stderr clm;
 	where species="Bream";
@@ -14,7 +17,6 @@ proc univariate data=sashelp.fish mu0=14;
 	title "Testing whether the mean of Bream height = 14 ";
 run;
 **equal to ex10.3***;
-ods graphics on;
 proc ttest data=sashelp.fish h0=14 plots(shownull)=interval;
 	where species="Bream";
 	var height;
@@ -24,7 +26,6 @@ run;
 
 ***ex10.4***;
 ***two sample t test***;
-libname ex "C:\Library\Applications\Typora\data\self-training\SAS\data";
 proc contents data= ex.score;
 run;
 proc ttest data=ex.score plots(shownull)=interval;
@@ -75,23 +76,20 @@ proc ttest data=work.pressure;
 	title "Testing the difference before and after stimulus";
 run;
 
-
-
-
-
 **ex10.8****;
-proc npar1way data=ex.service wilcoxon median ;
+**non-parametric test***;
+proc npar1way data=ex.service wilcoxon median;
   class store;
   var servicelevel;
   title "Using NPAR1WAY to Compare Service Level";
 run;
 
 **ex10.9***;
+/*distribution fitness test */
 proc univariate data=sashelp.heart normal plot;
 	var Systolic;
-	histogram Systolic;
+	histogram;
 run;
-
 **ex 10.10**;
 data Plates;
       label Gap = 'Plate Gap in cm';
@@ -103,13 +101,13 @@ data Plates;
    0.519  1.302  0.275  0.601  0.388 0.450  0.845  0.319  0.486  0.529
    1.547  0.690  0.676  0.314  0.736 0.643  0.483  0.352  0.636  1.080
    ;
-   run;
-proc univariate data=Plates normal;
+run;
+proc univariate data=Plates normal plot;
       var Gap;
       histogram /
-                  lognormal (l=1  color=red)
-                  weibull   (l=15  color=blue)
-                  gamma     (l=40  color=yellow);
+		lognormal (l=1  color=red)
+        weibull   (l=15  color=blue)
+        gamma     (l=40  color=yellow);
 run;
 
 

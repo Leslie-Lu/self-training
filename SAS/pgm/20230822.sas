@@ -20,7 +20,7 @@ run;
 proc freq data=sashelp.fish;
 	tables species / missing; /*treat missing values as nonmissing*/
 run;
-proc univariate data=sashelp.fish plot;
+proc univariate data=sashelp.fish normal plot;
 	where species="Bream";
 	title "Descriptive Statistics Using Proc Univariate";
 	var height;
