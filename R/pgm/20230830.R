@@ -183,17 +183,28 @@ with(UScrime, t.test(U1, U2, paired=TRUE))
 # Mann-Whitney U-test
 with(UScrime, by(Prob, So, median))
 wilcox.test(Prob ~ So, data=UScrime)
+# Wilcox signed rank sum test
 sapply(UScrime[c("U1","U2")], median)
 with(UScrime, wilcox.test(U1, U2, paired=TRUE))
 
+# one-way design
 # Kruskal-Wallis test
+# kruskal.test(y ~ A, data)
 states <- data.frame(state.region, state.x77)
+states %>% str()
 kruskal.test(Illiteracy ~ state.region, data=states)
-
-# Listing 7.15 Nonparametric multiple comparisons
-source("https://rkabacoff.com/RiA/wmc.R")              
-states <- data.frame(state.region, state.x77)
+# nonparametric multiple pairwise comparisons while controlling the Type I error rate
+# source("https://rkabacoff.com/RiA/wmc.R") 
+source("C:/Library/Applications/Typora/data/self-training/R/pgm/macros/wmc.R")              
+# wmc(y ~ A, data, method) #method, the approach used to limit Type I errors
 wmc(Illiteracy ~ state.region, data=states, method="holm")
+
+# repeated measures design or randomized block design
+# Friedman test
+# friedman.test(y ~ A | B, data) #y, numrical; A, grouping variable; B, blocking variable that identifies matched observations
+
+
+
 
 
 
