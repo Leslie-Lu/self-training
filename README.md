@@ -17,6 +17,6 @@
 ## Videos of live streaming
 
 - [直播学习视频 | R-001 | 介绍](https://www.bilibili.com/video/BV1z14y1q7iv/?spm_id_from=333.999.0.0)
-
+- [直播学习视频 | SAS-001 | 介绍](https://www.bilibili.com/video/BV15w411D76P/?spm_id_from=333.999.0.0)
 
 
