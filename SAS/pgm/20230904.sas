@@ -1,39 +1,36 @@
 
-libname ex "\\scnwex\Book\Data"; 
+libname ex base "C:\Library\Applications\Typora\data\self-training\SAS\data";
+ods graphics on;
 
 /*example 11.3*/
+/*one way anova*/
 data ex.ReliefTime; 
 	input Medicine $ Hours @@; 
 	datalines; 
-	A 7 A 5 A 3 A 1
-	B 6 B 5 B 3 B 3
-	C 7 C 9 C 9 C 9
-	D 4 D 3 D 4 D 3
+A 7 A 5 A 3 A 1
+B 6 B 5 B 3 B 3
+C 7 C 9 C 9 C 9
+D 4 D 3 D 4 D 3
 	;
 run; 
+/*proc freq data= ex.relieftime;*/
+/*	tables Medicine*Hours;*/
+/*run;*/
 proc anova data = ex.ReliefTime; 
 	class Medicine; 
 	model Hours = Medicine; 
 run;
-ods graphics on;
-
-
-proc anova data = ex.ReliefTime; 
-	class Medicine; 
-	model Hours = Medicine; 
-run;
-ods graphics off;
-
-
+/*equal*/
 /*example 11.3*/
-ods graphics on;
 proc glm data = ex.ReliefTime plots(only) = diagnostics; 
 	class Medicine; 
 	model Hours = Medicine; 
-	means Medicine / hovtest; 
+	means Medicine / hovtest; /*hovtest, Requests a homogeneity of variance test*/
 run;
-quit;
-ods graphics off;
+
+
+
+
 
 
 /*example 11.4*/
