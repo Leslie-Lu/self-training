@@ -39,29 +39,42 @@ def anova_oneway() -> Tuple[float, float]:
     
     # Get the data
     print('One-way ANOVA: -----------------')
-    inFile = 'altman_910.txt'
+
+    inFile = 'C:/Library/Applications/Typora/data/self-training/Python/data/altman_910.txt'
     data = np.genfromtxt(inFile, delimiter=',')
     
-    # Sort them into groups, according to column 1
-    group1 = data[data[:,1]==1,0]
-    group2 = data[data[:,1]==2,0]
-    group3 = data[data[:,1]==3,0]
+    # # Sort them into groups, according to column 1
+    # # group1 = data[data[:,1]==1,0]
+    # # group2 = data[data[:,1]==2,0]
+    # # group3 = data[data[:,1]==3,0]
+    # # # equal
+    # df = pd.DataFrame(data, columns=['value', 'treatment'])    
+    # grouped= df.groupby('treatment')
+    # grouped.mean()
     
-    # --- >>> START stats <<< ---
-    # First, check if the variances are equal, with the "Levene"-test
-    (W,p) = stats.levene(group1, group2, group3)
-    if p<0.05:
-        print(f'Warning: the p-value of the Levene test is <0.05: p={p}')
+    # # --- >>> START stats <<< ---
+    # # First, check if the variances are equal, with the "Levene"-test
+    # # (W,p) = stats.levene(group1, group2, group3)
+    # # # equal
+    # W, p= stats.levene(grouped.get_group(1).value,
+    #                    grouped.get_group(2).value,
+    #                    grouped.get_group(3).value)
+    # if p<0.05:
+    #     print(f'Warning: the p-value of the Levene test is <0.05: p={p: 1.3f}')
     
-    # Do the one-way ANOVA
-    F_statistic, pVal = stats.f_oneway(group1, group2, group3)
-    # --- >>> STOP stats <<< ---
+    # # Do the one-way ANOVA
+    # # F_statistic, pVal = stats.f_oneway(group1, group2, group3)
+    # # # equal
+    # F_statistic, pVal = stats.f_oneway(grouped.get_group(1).value,
+    #                                    grouped.get_group(2).value,
+    #                                    grouped.get_group(3).value)
+    # # --- >>> STOP stats <<< ---
     
-    # Print the results
-    print('Data form Altman 910:')
-    print((F_statistic, pVal))
-    if pVal < 0.05:
-        print('One of the groups is significantly different.')
+    # # Print the results
+    # print('Data form Altman 910:')
+    # print((F_statistic, pVal))
+    # if pVal < 0.05:
+    #     print('One of the groups is significantly different.')
         
     # Elegant alternative implementation, with pandas & statsmodels
     df = pd.DataFrame(data, columns=['value', 'treatment'])    
@@ -70,10 +83,11 @@ def anova_oneway() -> Tuple[float, float]:
     print(anovaResults)
     
     # Check if the two results are equal. If they are, there is no output
-    np.testing.assert_almost_equal(F_statistic, anovaResults['F'][0])
+    # np.testing.assert_almost_equal(F_statistic, anovaResults['F'][0])
     
     # should be (3.711335988266943, 0.043589334959179327)
-    return (F_statistic, pVal)
+    # return (F_statistic, pVal)
+    return(anovaResults['F'][0])
 
 
 def show_teqf() -> float:
@@ -85,7 +99,7 @@ def show_teqf() -> float:
     """
     
     # Get the data
-    data = pd.read_csv('galton.csv')
+    data = pd.read_csv('C:/Library/Applications/Typora/data/self-training/Python/data/galton.csv')
     
     # First, calculate the F- and the T-values, ...
     F_statistic, pVal = stats.f_oneway(data['father'], data['mother'])
@@ -110,11 +124,12 @@ def anova_statsmodels() -> float:
     """
     
     # Get the data
-    data = pd.read_csv('galton.csv')
-    
+    data = pd.read_csv('C:/Library/Applications/Typora/data/self-training/Python/data/galton.csv')
+
     anova_results = anova_lm(ols('height ~ 1 + sex', data).fit())
     print('\nANOVA with "statsmodels" ------------------------------')
     print(anova_results)
+    # anova_results['PR(>F?)'][0]
     
     return anova_results['F'][0]
 
@@ -131,7 +146,7 @@ def anova_byHand() -> Tuple[float, float]:
     """
 
      # Get the data
-    inFile = 'altman_910.txt'
+    inFile = 'C:/Library/Applications/Typora/data/self-training/Python/data/altman_910.txt'
     data = np.genfromtxt(inFile, delimiter=',')
 
     # Convert them to pandas-forman and group them by their group value
@@ -154,7 +169,7 @@ def anova_byHand() -> Tuple[float, float]:
     df = stats.f(df_groups,df_residuals)
     p = df.sf(F)
 
-    print(f'ANOVA-Results: F = {F}, and p<{p}')
+    print(f'\nANOVA-Results: F = {F}, and p= {p}')
     
     return (F, p)
     
@@ -164,4 +179,4 @@ if __name__ == '__main__':
     anova_byHand()
     show_teqf()
     anova_statsmodels()    
-    #raw_input('Done!')
+    input('Done!')
