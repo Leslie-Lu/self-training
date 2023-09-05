@@ -28,53 +28,53 @@ proc glm data = ex.ReliefTime plots(only) = diagnostics;
 	means Medicine / hovtest; /*hovtest, Requests a homogeneity of variance test*/
 run;
 
-
-
-
-
-
+/*pairwise comparison*/
 /*example 11.4*/
-ods graphics on;
 proc glm data = ex.ReliefTime ; 
 	class Medicine; 
 	model Hours = Medicine; 
-	lsmeans Medicine/pdiff = All ;
+/*	ls-means, suitable for unbalanced data*/
+	lsmeans Medicine / pdiff = All adjust=tukey; /*pdiff, request that p-values for all pairwise differences*/
 run;
 
+
+/*two-way ANOVA*/
 /*example 11.5*/
 proc means data = sashelp.class N mean ; 
 	class age sex; 
 	var height;
 run;
-
-
+/*proc glm, for unbalanced data*/
 proc glm data = sashelp.class; 
 	class Age Sex; 
-	model Weight = Age Sex Age*Sex; 
+	model Weight = Age Sex Age*Sex; /*no statistical significance for interaction*/
+	lsmeans age / pdiff=all adjust=tukey;
 run;
 
-
 /*example 11.6*/
-
 data ex.fruit; 
 	input humidity $ temperature $ output_lbs @@; 
 	datalines; 
-	A1 B1 58.2 	A1 B1 52.6
-	A1 B2 56.2 	A1 B2 41.2
- 	A1 B3 65.3 	A1 B3 60
-	A2 B1 49.1 	A2 B1 42.8
-	A2 B2 54.1 	A2 B2 50.5
- 	A2 B3 51.6 	A2 B3 48.4
-	A3 B1 60.1	A3 B1 58.3
-	A3 B2 70.9	A3 B2 73.2
- 	A3 B3 39.2	A3 B3 40.7
+A1 B1 58.2 A1 B1 52.6
+A1 B2 56.2 A1 B2 41.2
+A1 B3 65.3 A1 B3 60
+A2 B1 49.1 A2 B1 42.8
+A2 B2 54.1 A2 B2 50.5
+A2 B3 51.6 A2 B3 48.4
+A3 B1 60.1 A3 B1 58.3
+A3 B2 70.9 A3 B2 73.2
+A3 B3 39.2 A3 B3 40.7
 ; 
 run;
-
-
+proc means data=ex.fruit n mean;
+	class humidity temperature;
+/*	by humidity temperature;*/
+	var output_lbs;
+run;
 proc glm data = ex.fruit; 
 	class humidity temperature; 
-	model output_lbs = humidity temperature 
-             humidity*temperature;
+	model output_lbs = humidity temperature humidity*temperature; /*statistical significance for interaction*/
+	lsmeans humidity*temperature / slice=humidity; /*test for the effect of temperature within each leavl of humidity*/
+	lsmeans humidity*temperature / pdiff=all adjust=tukey; 
 run;
 
