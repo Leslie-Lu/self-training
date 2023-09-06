@@ -18,7 +18,6 @@ effectiveness.
 Taken from an example by Josef Perktold (http://jpktd.blogspot.co.at/)
 """
 
-# author: Thomas Haslwanter, date: Feb-2021
 
 # Import standard packages
 import numpy as np
@@ -29,7 +28,8 @@ import os
 
 # additional packages
 import sys
-sys.path.append(os.path.join('..', '..', 'Utilities'))
+# sys.path.append(os.path.join('..', '..', 'Utilities'))
+sys.path.append('C:/Library/Applications/Typora/data/self-training/Python/pgm/macros')
 
 try:
 # Import formatting commands if directory "Utilities" is available
@@ -127,6 +127,9 @@ def doTukey(data: np.ndarray, multiComp: MultiComparison) -> None:
     """
     
     # Show the results of the multicomparison test
+    # There are many ways to do multiple comparisons. Here, we choose
+    # "Tukeys Honest Significant Difference" test
+    # The first element of the output ("0") is a table containing the results
     print((multiComp.tukeyhsd().summary()))
     
     # Calculate the p-values:
@@ -140,31 +143,39 @@ def doTukey(data: np.ndarray, multiComp: MultiComparison) -> None:
     print((multiComp.groupsunique))
     
     # Generate a print -------------------
-    
-    # Get the data
-    xvals = np.arange(3)
-    res2 = pairwise_tukeyhsd(data['StressReduction'], data['Treatment'])
-    errors = np.ravel(np.diff(res2.confint)/2)
-    
-    # Plot them
-    plt.plot(xvals, res2.meandiffs, 'o')
-    plt.errorbar(xvals, res2.meandiffs, yerr=errors, fmt='o')
-    
-    # Put on labels
-    pair_labels = \
-            multiComp.groupsunique[np.column_stack(res2._multicomp.pairindices)]
-    pairs = [':'.join(labels) for labels in pair_labels]
-    plt.xticks(xvals, pairs)
-    
-    # Format the plot
-    xlim = -0.5, 2.5
-    plt.hlines(0, *xlim)
-    plt.xlim(*xlim)
-    plt.title('Multiple Comparison of Means - Tukey HSD, FWER=0.05' +
-              '\n Pairwise Mean Differences')          
+    simple = False
+    if simple:
+        # You can do the plot with a one-liner, but then this does not - yet -
+        # look that great
+        res2.plot_simultaneous()
+    else:
+        # Plot values and errorbars
+        xvals = np.arange(3)
+        errors = np.ravel(np.diff(res2.confint)/2)
+        # Plot them
+        plt.plot(xvals, res2.meandiffs, 'o')
+        plt.errorbar(xvals, res2.meandiffs, yerr=errors, fmt='o')
+        # Plot labels (this is a bit tricky):
+            # First, "np.array(mc.groupsunique)" makes an array with the names of
+            # the groups; and then, "np.column_stack(res2[1][0])]" puts the correct
+            # groups together
+        pair_labels = \
+                multiComp.groupsunique[np.column_stack(res2._multicomp.pairindices)]
+        pairs = [':'.join(labels) for labels in pair_labels.astype('str')]
+        # pairs = ['\n'.join(label) for label in pair_labels]
+        plt.xticks(xvals, pairs)
+        # Format the plot
+        # Set the x-limits
+        xlim = -0.5, 2.5
+        # The "*xlim" passes the elements of the variable "xlim" elementwise
+        # into the function "hlines"
+        plt.hlines(0, *xlim)
+        plt.xlim(*xlim)
+        plt.title('Multiple Comparison of Means - Tukey HSD, FWER=0.05' +
+                '\n Pairwise Mean Differences')          
     
     # Save to outfile, and show the data
-    outFile = 'multComp.png'
+    outFile = 'C:/Library/Applications/Typora/data/self-training/Python/output/multComp.png'
     showData(outFile)
     
 

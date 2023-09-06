@@ -62,6 +62,8 @@ def unpaired_data() -> float:
     -------
     p : probability of the Mann-Whitney test
     """
+
+    print('Two groups of data =========================================')
     
     # Get the data: energy expenditure in mJ and stature (0=obese, 1=lean)
     inFile = 'C:/Library/Applications/Typora/data/self-training/Python/data/altman_94.txt'
@@ -106,11 +108,31 @@ def unpaired_data() -> float:
     df = pd.DataFrame(energ, columns = ['energy', 'weightClass'])
     grouped = df.groupby('weightClass')
     grouped.mean()
+
+    # Normality test 
+    print('\n Normality test ----------------------------------------------')
+    # To do the test for both data-sets, make a tuple with "(... , ...)",
+    # add a counter with "enumerate", and iterate over the set:
+    for ii, data in enumerate((grouped.get_group(0).energy, grouped.get_group(1).energy)):
+        (_, pval) = stats.normaltest(data)
+        if pval > 0.05:
+            print(f'Dataset # {ii} is normally distributed')
+
     t_statistic, p_value = stats.ttest_ind(grouped.get_group(0).energy,
                                            grouped.get_group(1).energy)    
     grouped.energy.plot(marker='o', lw=0)
     plt.legend(['obese', 'lean'])
     plt.show()
+
+    # Mann-Whitney test -----------------------------------------------------
+    print('\n Mann-Whitney test --------------------------------------------')
+    u, pval = stats.mannwhitneyu(grouped.get_group(0).energy,
+                                 grouped.get_group(1).energy)
+    if pval < 0.05:
+        print('With the Mann-Whitney test, data1 and data2 are'+
+              f' significantly different(p = {pval:5.3f})')
+    else:
+        print('No difference between data1 and data2 with Mann-Whitney test.')
     
     return p_value  # should be 0.001060806692940024
 
@@ -146,4 +168,5 @@ if __name__ == '__main__':
     
     p = unpaired_data()
     p= t_reg()
-    
+    input('\nDone!\n'+
+          'Hit any key to finish.')

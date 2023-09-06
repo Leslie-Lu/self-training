@@ -40,8 +40,29 @@ def anova_oneway() -> Tuple[float, float]:
     # Get the data
     print('One-way ANOVA: -----------------')
 
-    inFile = 'C:/Library/Applications/Typora/data/self-training/Python/data/altman_910.txt'
-    data = np.genfromtxt(inFile, delimiter=',')
+    # inFile = 'C:/Library/Applications/Typora/data/self-training/Python/data/altman_910.txt'
+    # data = np.genfromtxt(inFile, delimiter=',')
+    # Module for working with Excel-files
+    import xlrd
+    # First we have to get the Excel-data into Python. This can be done e.g.
+    # with the package "xlrd"
+    # You have to make sure that you select a valid location on your computer!
+    inFile = 'C:/Library/Applications/Typora/data/self-training/Python/data/Table 6.6 Plant experiment.xls'
+    book = xlrd.open_workbook(inFile)
+    # We assume that the data are in the first sheet. This avoids the language
+    # problem "Tabelle/Sheet"
+    sheet = book.sheet_by_index(0)
+    # Select the columns and rows that you want:
+    # The "treatment" information is in column "E",
+    #           i.e. you have to skip the first 4 columns
+    # The "weight" information is in column "F",
+    #           i.e. you have to skip the first 5 columns
+    treatment = sheet.col_values(4)
+    weight = sheet.col_values(5)
+    # The data start in line 4, i.e. you have to skip the first 3
+    # I use a "pandas" DataFrame, so that I can assign names to the variables.
+    df = pd.DataFrame({'group':treatment[3:], 'weight':weight[3:]})
+
     
     # # Sort them into groups, according to column 1
     # # group1 = data[data[:,1]==1,0]
@@ -77,10 +98,23 @@ def anova_oneway() -> Tuple[float, float]:
     #     print('One of the groups is significantly different.')
         
     # Elegant alternative implementation, with pandas & statsmodels
-    df = pd.DataFrame(data, columns=['value', 'treatment'])    
-    model = ols('value ~ C(treatment)', df).fit()
+    # df = pd.DataFrame(data, columns=['value', 'treatment'])   
+
+
+    # First, I fit a statistical "ordinary least square (ols)"-model to the data,
+    # using the formula language from "patsy". The formula
+    #   'weight ~ C(group)'
+    # says:
+    #   "weight" is a function of the categorical value "group"
+    # and the data are taken from the DataFrame "data", which contains
+    # "weight" and "group" 
+    model = ols('weight ~ C(group)', df).fit()
+    # "anova_lm" (where "lm" stands for "linear model") extracts the
+    # ANOVA-parameters from the fitted model.
     anovaResults = anova_lm(model)
     print(anovaResults)
+    if anovaResults['PR(>F)'][0] < 0.05:
+        print('One of the groups is different.')
     
     # Check if the two results are equal. If they are, there is no output
     # np.testing.assert_almost_equal(F_statistic, anovaResults['F'][0])

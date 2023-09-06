@@ -199,7 +199,7 @@ source("C:/Library/Applications/Typora/data/self-training/R/pgm/macros/wmc.R")
 # wmc(y ~ A, data, method) #method, the approach used to limit Type I errors
 wmc(Illiteracy ~ state.region, data=states, method="holm")
 
-# repeated measures design or randomized block design
+# repeated measures design or (paired multiple, ge 3, groups) or randomized block design
 # Friedman test
 # friedman.test(y ~ A | B, data) #y, numrical; A, grouping variable; B, blocking variable that identifies matched observations
 

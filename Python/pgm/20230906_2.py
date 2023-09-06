@@ -3,7 +3,6 @@ The model is formulated using the "patsy" formula description. This is very
 similar to the way models are expressed in R.
 """
 
-# author: Thomas Haslwanter, date: Feb-2021
 
 # Import standard packages
 import numpy as np
@@ -25,7 +24,8 @@ def anova_interaction() -> float:
     """
     
     # Get the data
-    inFile = 'altman_12_6.txt'
+
+    inFile = 'C:/Library/Applications/Typora/data/self-training/Python/data/altman_12_6.txt'
     data = np.genfromtxt(inFile, delimiter=',')
     
     # Bring them in DataFrame-format
@@ -40,7 +40,29 @@ def anova_interaction() -> float:
     print(anovaResults)
 
     return  anovaResults['F'][0]
-                              
+
+# # three-way anova                              
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# sns.set(style= 'whitegrid')
+# df= sns.load_dataset('exercise')
+# df
+# sns.catplot(x= 'time', y= 'pulse', hue= 'kind', col= 'diet',
+#             data= df, hue_order= ['rest', 'walking', 'running'],
+#             kind= 'point',
+#             palette= 'YlGnBu_d', aspect= .75)
+# plt.show()
+
 
 if __name__ == '__main__':
     anova_interaction()
+
+
+
+
+
+
+
+
+
+

@@ -25,7 +25,17 @@ def check_mean() -> float:
     # Get data from Altman
     inFile = 'C:/Library/Applications/Typora/data/self-training/Python/data/altman_91.txt'
     data = np.genfromtxt(inFile, delimiter=',')
+    # equal
+    # data = np.array([5260, 5470, 5640, 6180, 6390,
+    #                  6515, 6805, 7515, 7515, 8230, 8770], dtype=np.float)
     # data
+
+    # 4.1.1. Normality test
+    # We don't need the first parameter, so we just assign the output
+    # to the dummy variable "_"
+    (_, p) = stats.normaltest(data)
+    if p > 0.05:
+        print(f'Data are distributed normally, p = {p}')
 
     # Watch out: by default the standard deviation in numpy is calculated
     # with ddof=0, corresponding to 1/N!
@@ -48,11 +58,13 @@ def check_mean() -> float:
     # --- >>> START stats <<< ---
     t, prob = stats.ttest_1samp(data, checkValue)
     if prob < 0.05:
-        print(f'{checkValue:4.2f} is significantly different ' +
-              f'from the mean (p={prob:5.3f}).')
+        print(f'With the one-sample t-test, {checkValue:4.2f} is'+
+              f' significantly different from the mean (p={prob:5.3f}).')
+    else:
+        print('No difference from reference value with onesample t-test.')
 
     # For not normally distributed data, use the Wilcoxon signed rank sum test
-    (rank, pVal) = stats.wilcoxon(data-checkValue)
+    (rank, pVal) = stats.wilcoxon(data-checkValue) #checks for the difference of one vector of data from zero
     if pVal < 0.05:
       issignificant = 'unlikely'
     else:
