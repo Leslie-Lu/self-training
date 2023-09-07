@@ -20,9 +20,10 @@ run;
 proc freq data=sashelp.fish;
 	tables species / missing; /*treat missing values as nonmissing*/
 run;
-proc univariate data=sashelp.fish normal plot;
+proc univariate data=sashelp.fish normal /*normality test*/ plot;
 	where species="Bream";
 	title "Descriptive Statistics Using Proc Univariate";
+/*	class stratify_variable;*/
 	var height;
 	histogram / normal(mu=est sigma=est) kernel;
 	probplot / normal(mu=est sigma=est);
