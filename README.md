@@ -18,5 +18,5 @@
 
 - [直播学习视频 | R-001 | 介绍](https://www.bilibili.com/video/BV1z14y1q7iv/?spm_id_from=333.999.0.0)
 - [直播学习视频 | SAS-001 | 介绍](https://www.bilibili.com/video/BV15w411D76P/?spm_id_from=333.999.0.0)
-
+- [直播学习视频 | SAS-002 | 变量属性，SAS数据文件](https://www.bilibili.com/video/BV1Rj41117qy/?spm_id_from=333.999.0.0)
 
