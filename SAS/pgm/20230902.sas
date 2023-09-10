@@ -34,10 +34,79 @@ proc print data=sales noobs /*label*/;
 run;
 
 libname saslib 'C:\Library\Applications\Typora\data\self-training\SAS\data';
+libname saslib clear;
 proc print data= saslib.service noobs;
 run;
 proc summary data=saslib.service;
 	var servicelevel;
 	output out=saslib.sumout n=n;
+run;
+
+data saslib.service_vw / view=saslib.service_vw;
+	set saslib.service;
+run;
+
+data _null_;
+	a= sqrt(4);
+run;
+data aa;
+	a= sqrt(4);
+run;
+
+libname sashelp list;
+libname _all_ list;
+
+options obs=10;
+title "数据集选项OBS=生效打印5条观测";
+proc print data=sashelp.shoes (obs=5);
+run;
+title "系统选项OBS=生效打印10条观测";
+proc print data=sashelp.shoes;
+run;
+
+libname saslib 'C:\Library\Applications\Typora\data\self-training\SAS\data' access=readonly;
+proc print data= saslib.service noobs;
+run;
+data saslib.aa;
+	set saslib.service;
+	a= 1;
+run;
+
+proc options option=obs /*value*/;
+run;
+%put %sysfunc(getoption(obs));
+
+*Do NOT edit below this line!;
+/* Do NOT edit below this line! */
+/***********************************************************
+* PROGRAM SETUP
+* Use this section to alter macro variables, options, or
+* other aspects of the test. No Edits to this Program are
+* allowed past the Program Setup section!!
+***********************************************************/
+
+libname saslib 'C:\Library\Applications\Typora\data\self-training\SAS\data';
+data saslib.inventory;
+	input Product_ID $ Instock Price;
+	Cost=Price*0.15;
+	N= _n_;
+	put _n_;
+	datalines;
+P001R 12 125.00
+P003T 34 40.00
+P301M 23 500.00
+PC02M 12 100.00
+;
+run;
+
+filename invtfile 'C:\Library\Applications\Typora\data\self-training\SAS\data\inventory.dat';
+data saslib.Inventory;
+	infile invtfile;
+	input Product_ID $ Instock Price;
+run;
+filename extfiles 'C:\Library\Applications\Typora\data\self-training\SAS\data';
+data saslib.Inventory;
+	infile extfiles(inventory);
+	input Product_ID $ Instock Price;
 run;
 
