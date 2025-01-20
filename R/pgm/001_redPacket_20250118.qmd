@@ -1,0 +1,51 @@
+```{r}
+#| eval: false 
+rm(list = ls())
+gc()
+
+library(ggplot2)
+library(magrittr)
+library(lulab.utils)
+lulab.utils::test_mirror("China")
+options(repos = c(CRAN = "https://mirrors.nju.edu.cn/CRAN/"))
+library(showtext)
+font_families()
+font_paths()
+font_add("STXINGKA", "C:/Windows/Fonts/STXINGKA.TTF")
+showtext_auto()
+font_add("msyh", "C:/Windows/Fonts/msyh.ttc")
+showtext_auto()
+
+# read image
+img= magick::image_read("R/materials/snake-2025-year-symbol-cute-outline-snake-smiling-\
+adorable-doodle-character-vector-illustration_502651-1294.avif")
+img1= magick::image_fill(img, "#980102", fuzz = 99)
+
+# plot
+data <- data.frame(x = c(0, 1), y = c(0, 1))
+p <- ggplot(data, aes(x, y)) +
+  geom_point(color= "#980102") +
+  annotation_custom(grid::rasterGrob(
+    img1,
+    width = unit(1, "npc"),
+    height = unit(.6, "npc"),
+    y= unit(.35, "npc")
+  ), -Inf, Inf, -Inf, Inf) +
+  scale_fill_gradient(low = "#980102", high = "#980102") +
+  theme_void() +
+  theme(plot.background = element_rect(fill = "#980102")) +
+  annotate("text", label = "大吉大利",
+           x = .5, y = 0.55, fontface = "plain",
+           size = 22, color = "gold", family = "STXINGKA") +
+  annotate("text", label = "陆震生物统计",
+           x = .92, y = 0.15,
+           size = 6, color = "gold", family = "STXINGKA")
+p
+ggsave(
+  "R/materials/2025_happy_newyear.png",
+  width = 957,
+  height = 1278,
+  units = "px",
+  dpi = 600
+)
+```
