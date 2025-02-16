@@ -50,7 +50,7 @@ data CensoredData(keep= PatientID t Censored);
         output;
     end;
 run;
-proc lifetest data=CensoredData plots=(survival(atrisk CL));
+proc lifetest data=CensoredData plots=(survival(atrisk CL)); /*plot=(图表名(选项))*/
     time t*Censored(1);
     ods select Quartiles Means CensoredSummary SurvivalPlot;
 run;
