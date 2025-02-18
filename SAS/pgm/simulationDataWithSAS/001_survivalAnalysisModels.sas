@@ -10,10 +10,83 @@ an exponential distribution of survival times implies that the baseline hazard f
 */
 
 /* to simulate data from an exponential distribution with scale parameter sigma */
+/* 
+the exponential distribution models the ime betwwen events that occur at a constant avarage rate.
+the exponential distribution is a continuous analog of the geometric distribution.
+the exponential distributionwith scale parameter sigma has density function f(t) = (1/sigma) * exp(-t/sigma) for t > 0.
+atlternatively, we can use lambda = 1/sigma as the rate parameter.
+the rate parameter describes the rate at which events occur.
+the following example simulates 100 observations from an exponential distribution with sigma = 10.
+*/
+proc template;
+    define statgraph ContPDF;
+    dynamic _X _T _Y _Title _HAlign
+            _binstart _binstop _binwidth;
+    begingraph;
+        entrytitle halign=center _Title;
+        layout overlay /xaxisopts=(linearopts=(viewmax=_binstop));
+            histogram _X / name='hist' SCALE=DENSITY binaxis=true 
+                endlabels=true xvalues=leftpoints binstart=_binstart binwidth=_binwidth;
+            seriesplot x=_T y=_Y / name='PDF' legendlabel="PDF" lineattrs=(thickness=2);
+            discretelegend 'PDF' / opaque=true border=true halign=_HAlign valign=top 
+                    across=1 location=inside;
+        endlayout;
+    endgraph;
+end;
+run;
+%macro ContPlot(DistName, binstart, binstop, binwidth);
+data Cont;
+   merge &DistName work.PDF;
+run;
+proc sgrender data=Cont template=ContPDF;
+   dynamic _X="X" _T="T" _Y="Y" _HAlign="right"
+	   _binstart=&binstart _binstop=&binstop _binwidth=&binwidth
+	   _Title="Sample from &DistName Distribution (N=&N)";
+run;
+%mend;
+%let N = 100;
+data work.Exponential(keep=x);
+    call streaminit(4321);
+    sigma = 10;
+    do i = 1 to &N;
+        x = sigma * rand("Exponential");    /* X ~ Expo(10) */
+        output;
+    end;
+run;
+data work.PDF;
+    do t = 1 to 45;
+        Y = pdf("Exponential", t, 10);
+        output;
+    end;
+run;
+%ContPlot(work.Exponential, 0.0, 45, 5);
+/* if X is distributed according to an expotential distribution with unit scale parameter, 
+then Y= sigma*X is distributed according to an exponential distribution with scale parameter sigma.
+the expected value of Y is sigma and the variance of Y is sigma^2. */
 %macro RandExp(sigma);
     ((&sigma) * rand("Exponential"))
 %mend;
-
+/* 
+some distributions include the exponential distribution for particular values of the distribution parameters.
+for exmaple, a Weibull(1, b) distribution is an exponential distribution with scale parameter b.
+*/
+data work.Weibull(keep=x);
+    call streaminit(4321);
+    b = 10;
+    do i = 1 to &N;
+        x = rand("weibull", 1, b);    /* X ~ Weibull(1, 10) */
+        output;
+    end;
+run;
+data work.PDF;
+    do t = 1 to 45;
+        Y = pdf("Weibull", t, 1, 10);
+        output;
+    end;
+run;
+%ContPlot(work.Weibull, 0.0, 45, 5);
+proc compare base=work.Exponential compare=work.Weibull;
+run;
 
 
 /* simulating survival data */
