@@ -315,3 +315,280 @@ dataset_external= dataset_binary_trans %>%
   filter(type == "external")
 saveRDS(dataset_internal, "R/materials/dataset_internal.rds")
 saveRDS(dataset_external, "R/materials/dataset_external.rds")
+
+
+####################################################
+# 3. 模型构建
+####################################################
+packages= c("dplyr", "glmnet", "StepReg", "magrittr", "plyr")
+for (i in packages){
+  if (!suppressMessages(require(i, character.only = TRUE))) {
+    install.packages(i)
+  }
+}
+# 最优子集筛选
+bestSubsetBinary= function(data, outcome, predictors, criteria= "R2"){
+  list_of_reg_formulas= lapply(seq_along(predictors), function(i) {
+    right_side= apply(combn(predictors, i), 2, paste, collapse= " + ")
+    paste(outcome, right_side, sep= " ~ ")
+  })
+  vector_of_reg_formulas= unlist(list_of_reg_formulas)
+
+  options(warn = -1) # 关闭警告
+  list_of_models= lapply(vector_of_reg_formulas, function(x) {
+    formula= as.formula(x)
+    model= glm(formula, data= data, family= binomial(link= "logit"))
+    # ?summary.glm
+    # pseudo R² in GLM:
+    # McFadden's R² = 1 - (模型的偏差 / 零模型的偏差)
+    resultR2= 1- (summary(model)$deviance/summary(model)$null.deviance)
+    resultAIC= extractAIC(model)
+    data.frame(
+      No_predictors= resultAIC[1], # degree of freedom
+      AIC= resultAIC[2],
+      R2= resultR2,
+      model= x
+    )
+  })
+
+  options(warn = 0)
+  # do.call 将 list_of_models 中的每个数据框作为参数传递给 rbind 函数，最终得到一个包含所有模型结果的综合数据框
+  res= do.call(rbind, list_of_models)
+  if(criteria == "R2"){
+    formula= res %>%
+      group_by(No_predictors) %>%
+      mutate(best_model= (R2 == max(R2))) %>%
+      filter(best_model) %>%
+      ungroup() %>%
+      mutate(
+        model= as.character(model),
+        optimal_model= (AIC == min(AIC))
+      ) %>%
+      filter(optimal_model) %>%
+      "[["("model") # 提取 model 列
+  } else if(criteria == "AIC"){
+    formula= res %>%
+      group_by(No_predictors) %>%
+      mutate(best_model= (AIC == min(AIC))) %>%
+      filter(best_model) %>%
+      ungroup() %>%
+      mutate(
+        model= as.character(model),
+        optimal_model= (R2 == max(R2))
+      ) %>%
+      filter(optimal_model) %>%
+      "[["("model") # 提取 model 列
+  }
+  return(formula)
+}
+# forward stepwise selection
+forwardStepwiseBinary= function(data, outcome, predictors){
+  selected_vars= c()
+  models= data.frame()
+  p= seq_along(predictors)
+
+  # null model
+  null_model= glm(as.formula(paste(outcome, "~ 1")), data= data, family= binomial(link= "logit"))
+  resultR2= 1- (summary(null_model)$deviance/summary(null_model)$null.deviance)
+  resultAIC= extractAIC(null_model)
+  models= rbind(models, data.frame(
+    No_predictors= resultAIC[1],
+    AIC= resultAIC[2],
+    R2= resultR2
+  ))
+
+  # forward stepwise
+  for(i in p){
+    candidated_vars= setdiff(predictors, selected_vars)
+    list_of_models= lapply(candidated_vars, function(x) {
+      formula= as.formula(paste(outcome, paste(c(selected_vars, x), collapse = " + "), sep= " ~ "))
+      model= glm(formula, data= data, family= binomial(link= "logit"))
+      resultR2= 1- (summary(model)$deviance/summary(model)$null.deviance)
+      resultAIC= extractAIC(model)
+      data.frame(
+        No_predictors= resultAIC[1],
+        AIC= resultAIC[2],
+        R2= resultR2,
+        added_var= x,
+        formula= as.character(formula)
+      )
+    })
+    res= do.call(rbind, list_of_models)
+    best_model= res %>%
+      mutate(best_model= (R2 == max(R2))) %>%
+      filter(best_model)
+    added_var= best_model %>%
+      "[["("added_var")
+    selected_vars= c(selected_vars, added_var)
+    best_model$model_vars= paste(selected_vars, collapse= " + ")
+    models= rbind.fill(models, best_model)
+  }
+
+  final_model= models %>%
+    filter(AIC == min(AIC)) %>%
+    "[["("formula")
+  return(final_model)
+}
+
+# forward stepwise selection with stop criteria
+forwardStepwiseBinaryStop= function(data, outcome, predictors){
+  selected_vars= c()
+  p= seq_along(predictors)
+
+  # null model
+  null_model= glm(as.formula(paste(outcome, "~ 1")), data= data, family= binomial(link= "logit"))
+  resultR2= 1- (summary(null_model)$deviance/summary(null_model)$null.deviance)
+  AICMin= extractAIC(null_model)[2]
+
+  # forward stepwise
+  for(i in p){
+    candidated_vars= setdiff(predictors, selected_vars)
+    list_of_models= lapply(candidated_vars, function(x) {
+      formula= as.formula(paste(outcome, paste(c(selected_vars, x), collapse = " + "), sep= " ~ "))
+      model= glm(formula, data= data, family= binomial(link= "logit"))
+      resultR2= 1- (summary(model)$deviance/summary(model)$null.deviance)
+      resultAIC= extractAIC(model)
+      data.frame(
+        No_predictors= resultAIC[1],
+        AIC= resultAIC[2],
+        R2= resultR2,
+        added_var= x,
+        formula= as.character(formula)
+      )
+    })
+
+    res= do.call(rbind, list_of_models)
+    if(min(res$AIC) <= AICMin){
+      best_model= res %>%
+        filter(AIC == min(AIC))
+      added_var= best_model %>%
+        "[["("added_var")
+      selected_vars= c(selected_vars, added_var)
+      AICMin= min(res$AIC)
+    } else {
+      break
+    }
+  }
+
+  final_model= paste(outcome, paste(selected_vars, collapse= " + "), sep= " ~ ")
+  return(final_model)
+}
+
+# backward stepwise selection
+backwardStepwiseBinary= function(data, outcome, predictors){
+  selected_vars= predictors
+  models= data.frame()
+  p= rev(seq_along(predictors))
+
+  # full model
+  full_model= glm(as.formula(paste(outcome, paste(selected_vars, collapse = " + "), sep= " ~ ")), 
+                  data= data, family= binomial(link= "logit"))
+  resultR2= 1- (summary(full_model)$deviance/summary(full_model)$null.deviance)
+  resultAIC= extractAIC(full_model)
+  models= rbind(models, data.frame(
+    No_predictors= resultAIC[1],
+    AIC= resultAIC[2],
+    R2= resultR2
+  ))
+
+  # backward stepwise
+  for(i in p){
+    if(i>1){
+      candidated_vars= selected_vars
+      list_of_models= lapply(candidated_vars, function(x) {
+        formula= as.formula(paste(outcome, paste(setdiff(candidated_vars, x), collapse = " + "), sep= " ~ "))
+        model= glm(formula, data= data, family= binomial(link= "logit"))
+        resultR2= 1- (summary(model)$deviance/summary(model)$null.deviance)
+        resultAIC= extractAIC(model)
+        data.frame(
+          No_predictors= resultAIC[1],
+          AIC= resultAIC[2],
+          R2= resultR2,
+          removed_var= x,
+          formula= as.character(formula)
+        )
+      })
+      res= do.call(rbind, list_of_models)
+      best_model= res %>%
+        mutate(best_model= (R2 == max(R2))) %>%
+        filter(best_model)
+      removed_var= best_model %>%
+        "[["("removed_var")
+      selected_vars= setdiff(selected_vars, removed_var)
+      best_model$model_vars= paste(selected_vars, collapse= " + ")
+      models= rbind.fill(models, best_model)
+    }else {
+      # null model
+      null_model= glm(as.formula(paste(outcome, "~ 1")), data= data, family= binomial(link= "logit"))
+      resultR2= 1- (summary(null_model)$deviance/summary(null_model)$null.deviance)
+      resultAIC= extractAIC(null_model)
+      models= rbind.fill(models, data.frame(
+        No_predictors= resultAIC[1],
+        AIC= resultAIC[2],
+        R2= resultR2
+      ))
+    }
+  }
+
+  final_model= models %>%
+    filter(AIC == min(AIC)) %>%
+    "[["("formula")
+  return(final_model)
+}
+
+# backward stepwise selection with stop criteria
+backwardStepwiseBinaryStop= function(data, outcome, predictors){
+  selected_vars= predictors
+  p= rev(seq_along(predictors))
+
+  # full model
+  full_model= glm(as.formula(paste(outcome, paste(selected_vars, collapse = " + "), sep= " ~ ")), 
+                  data= data, family= binomial(link= "logit"))
+  resultR2= 1- (summary(full_model)$deviance/summary(full_model)$null.deviance)
+  AICMin= extractAIC(full_model)[2]
+
+  # backward stepwise
+  for(i in p){
+    if(i>1){
+      candidated_vars= selected_vars
+      list_of_models= lapply(candidated_vars, function(x) {
+        formula= as.formula(paste(outcome, paste(setdiff(candidated_vars, x), collapse = " + "), sep= " ~ "))
+        model= glm(formula, data= data, family= binomial(link= "logit"))
+        resultR2= 1- (summary(model)$deviance/summary(model)$null.deviance)
+        resultAIC= extractAIC(model)
+        data.frame(
+          No_predictors= resultAIC[1],
+          AIC= resultAIC[2],
+          R2= resultR2,
+          removed_var= x,
+          formula= as.character(formula)
+        )
+      })
+      res= do.call(rbind, list_of_models)
+      if(min(res$AIC) <= AICMin){
+        best_model= res %>%
+          filter(AIC == min(AIC))
+        removed_var= best_model %>%
+          "[["("removed_var")
+        selected_vars= setdiff(selected_vars, removed_var)
+        formula= as.formula(paste(outcome, paste(selected_vars, collapse= " + "), sep= " ~ "))
+        AICMin= min(res$AIC)
+      } else {
+        break
+      }
+    }else {
+      # null model
+      null_model= glm(as.formula(paste(outcome, "~ 1")), data= data, family= binomial(link= "logit"))
+      resultR2= 1- (summary(null_model)$deviance/summary(null_model)$null.deviance)
+      resultAIC= extractAIC(null_model)
+      if(resultAIC[2] <= AICMin){
+        formula= as.formula(paste(outcome, "~ 1"))
+      } else {
+        break
+      }
+    }
+  }
+
+  final_model= as.character(formula)
+  return(final_model)
+}
