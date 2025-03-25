@@ -36,7 +36,7 @@ v = np.array([[1, 4, 7]]).T
 print(np.dot(u,v)) #error with column-based two-dimension array
 u = np.array([[3, 5, 2]])
 v = np.array([[1, 4, 7]]).T
-print(np.dot(u,v))
+print(np.dot(u,v)) #also can be written with @, i.e., u @ v
 
 # cross product of two vectors
 u = np.array([3, 5])
