@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    #vis.vega-embed {
+      width: 100%;
+      display: flex;
+    }
+
+    #vis.vega-embed details,
+    #vis.vega-embed details summary {
+      position: relative;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-lite@5.20.1"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+</head>
+<body>
+  <div id="vis"></div>
+  <script>
+    (function(vegaEmbed) {
+      var spec = {"config": {"view": {"continuousWidth": 300, "continuousHeight": 300}}, "data": {"name": "data-cfc4d8ea091346afdd0a8b7cbcae6f32"}, "mark": {"type": "line"}, "encoding": {"x": {"field": "Steps", "type": "quantitative"}, "y": {"field": "Loss", "type": "quantitative"}}, "params": [{"name": "param_4", "select": {"type": "interval", "encodings": ["x", "y"]}, "bind": "scales"}], "width": 350, "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json", "datasets": {"data-cfc4d8ea091346afdd0a8b7cbcae6f32": [{"Loss": 0.9513500928878784, "Steps": 0.0}, {"Loss": 0.5506610870361328, "Steps": 1.0}, {"Loss": 0.36806416511535645, "Steps": 2.0}, {"Loss": 0.2633008360862732, "Steps": 3.0}, {"Loss": 0.19600316882133484, "Steps": 4.0}, {"Loss": 0.14969676733016968, "Steps": 5.0}, {"Loss": 0.11632173508405685, "Steps": 6.0}, {"Loss": 0.0914536863565445, "Steps": 7.0}, {"Loss": 0.07246018946170807, "Steps": 8.0}, {"Loss": 0.05767849087715149, "Steps": 9.0}, {"Loss": 0.046007364988327026, "Steps": 10.0}, {"Loss": 0.03668995201587677, "Steps": 11.0}, {"Loss": 0.029190056025981903, "Steps": 12.0}, {"Loss": 0.02311750501394272, "Steps": 13.0}, {"Loss": 0.01818234473466873, "Steps": 14.0}, {"Loss": 0.014164797961711884, "Steps": 15.0}, {"Loss": 0.010895997285842896, "Steps": 16.0}, {"Loss": 0.008243605494499207, "Steps": 17.0}, {"Loss": 0.006103135645389557, "Steps": 18.0}, {"Loss": 0.0043908581137657166, "Steps": 19.0}, {"Loss": 0.0030393972992897034, "Steps": 20.0}, {"Loss": 0.0019933953881263733, "Steps": 21.0}, {"Loss": 0.0012075304985046387, "Steps": 22.0}, {"Loss": 0.0006441026926040649, "Steps": 23.0}, {"Loss": 0.0002719685435295105, "Steps": 24.0}, {"Loss": 6.46933913230896e-05, "Steps": 25.0}, {"Loss": 0.0, "Steps": 26.0}, {"Loss": 5.879998207092285e-05, "Steps": 27.0}, {"Loss": 0.00022541731595993042, "Steps": 28.0}, {"Loss": 0.0004856511950492859, "Steps": 29.0}, {"Loss": 0.0008278340101242065, "Steps": 30.0}, {"Loss": 0.0012415125966072083, "Steps": 31.0}, {"Loss": 0.0017178654670715332, "Steps": 32.0}, {"Loss": 0.0022491440176963806, "Steps": 33.0}, {"Loss": 0.00282866507768631, "Steps": 34.0}, {"Loss": 0.003450356423854828, "Steps": 35.0}, {"Loss": 0.004109002649784088, "Steps": 36.0}, {"Loss": 0.0048002153635025024, "Steps": 37.0}, {"Loss": 0.00551992654800415, "Steps": 38.0}, {"Loss": 0.006264358758926392, "Steps": 39.0}, {"Loss": 0.007030457258224487, "Steps": 40.0}, {"Loss": 0.00781557708978653, "Steps": 41.0}, {"Loss": 0.00861702486872673, "Steps": 42.0}, {"Loss": 0.009432688355445862, "Steps": 43.0}, {"Loss": 0.010260451585054398, "Steps": 44.0}, {"Loss": 0.011098768562078476, "Steps": 45.0}, {"Loss": 0.011945836246013641, "Steps": 46.0}, {"Loss": 0.012800503522157669, "Steps": 47.0}, {"Loss": 0.01366119459271431, "Steps": 48.0}, {"Loss": 0.01452692225575447, "Steps": 49.0}, {"Loss": 0.01539667323231697, "Steps": 50.0}, {"Loss": 0.01626954972743988, "Steps": 51.0}, {"Loss": 0.017144672572612762, "Steps": 52.0}, {"Loss": 0.018021363765001297, "Steps": 53.0}, {"Loss": 0.0188988596200943, "Steps": 54.0}, {"Loss": 0.019776728004217148, "Steps": 55.0}, {"Loss": 0.02065412700176239, "Steps": 56.0}, {"Loss": 0.02153083309531212, "Steps": 57.0}, {"Loss": 0.022406410425901413, "Steps": 58.0}, {"Loss": 0.02328038215637207, "Steps": 59.0}, {"Loss": 0.024152349680662155, "Steps": 60.0}, {"Loss": 0.025022096931934357, "Steps": 61.0}, {"Loss": 0.025889232754707336, "Steps": 62.0}, {"Loss": 0.026753541082143784, "Steps": 63.0}, {"Loss": 0.027614891529083252, "Steps": 64.0}, {"Loss": 0.02847297117114067, "Steps": 65.0}, {"Loss": 0.029327653348445892, "Steps": 66.0}, {"Loss": 0.030178681015968323, "Steps": 67.0}, {"Loss": 0.03102606162428856, "Steps": 68.0}, {"Loss": 0.031869515776634216, "Steps": 69.0}, {"Loss": 0.03270893916487694, "Steps": 70.0}, {"Loss": 0.03354433923959732, "Steps": 71.0}, {"Loss": 0.0343756340444088, "Steps": 72.0}, {"Loss": 0.03520262613892555, "Steps": 73.0}, {"Loss": 0.03602535277605057, "Steps": 74.0}, {"Loss": 0.036843590438365936, "Steps": 75.0}, {"Loss": 0.037657480686903, "Steps": 76.0}, {"Loss": 0.038466960191726685, "Steps": 77.0}, {"Loss": 0.03927192836999893, "Steps": 78.0}, {"Loss": 0.040072351694107056, "Steps": 79.0}, {"Loss": 0.04086831212043762, "Steps": 80.0}, {"Loss": 0.04165969043970108, "Steps": 81.0}, {"Loss": 0.042446501553058624, "Steps": 82.0}, {"Loss": 0.043228790163993835, "Steps": 83.0}, {"Loss": 0.04400644451379776, "Steps": 84.0}, {"Loss": 0.04477955400943756, "Steps": 85.0}, {"Loss": 0.045548178255558014, "Steps": 86.0}, {"Loss": 0.046312116086483, "Steps": 87.0}, {"Loss": 0.047071583569049835, "Steps": 88.0}, {"Loss": 0.047826528549194336, "Steps": 89.0}, {"Loss": 0.04857698827981949, "Steps": 90.0}, {"Loss": 0.049322910606861115, "Steps": 91.0}, {"Loss": 0.05006442964076996, "Steps": 92.0}, {"Loss": 0.05080140382051468, "Steps": 93.0}, {"Loss": 0.0515340194106102, "Steps": 94.0}, {"Loss": 0.05226223170757294, "Steps": 95.0}, {"Loss": 0.05298604816198349, "Steps": 96.0}, {"Loss": 0.05370552837848663, "Steps": 97.0}, {"Loss": 0.05442076176404953, "Steps": 98.0}]}};
+      var embedOpt = {"mode": "vega-lite"};
+
+      function showError(el, error){
+          el.innerHTML = ('<div style="color:red;">'
+                          + '<p>JavaScript Error: ' + error.message + '</p>'
+                          + "<p>This usually means there's a typo in your chart specification. "
+                          + "See the javascript console for the full traceback.</p>"
+                          + '</div>');
+          throw error;
+      }
+      const el = document.getElementById('vis');
+      vegaEmbed("#vis", spec, embedOpt)
+        .catch(error => showError(el, error));
+    })(vegaEmbed);
+
+  </script>
+</body>
+</html>
