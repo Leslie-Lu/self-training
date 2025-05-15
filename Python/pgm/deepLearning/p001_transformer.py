@@ -491,7 +491,7 @@ def run_tests():
 # Part 2: Model Training
 # First we define a batch object that holds the src and target sentences for training, as well as constructing the masks.
 # Batches and masking
-class Batch:
+class Batch():
     """
     Object for holding a batch of data with mask during training.
     """
@@ -1272,11 +1272,11 @@ def train_model(
 def load_trained_model():
     config= {
         'file_prefix': '/share/home/lsy_luzhen/self-training/Python/pgm/deepLearning/output/p001/multi30k_model_',
-        'num_epochs': 10,
+        'num_epochs': 50,
         'batch_size': 32,
         'max_padding': 72,
-        'base_lr': 0.5,
-        'warmup': 4000,
+        'base_lr': 1.0,
+        'warmup': 3000,
         'accum_iter': 10,
         'distributed': True
     } 
@@ -1295,10 +1295,136 @@ def load_trained_model():
         len(vocab_tgt),
         N=6
     )
-    model.load_state_dict(torch.load(model_path))
+    if torch.cuda.is_available():
+        model.load_state_dict(torch.load(model_path))
+    else:
+        model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
     return model
 
+# Here we simply translate the first sentence in the validation set.
+def check_outputs(
+    valid_dataloader,
+    model,
+    vocab_src,
+    vocab_tgt,
+    n_examples= 10,
+    pad_idx= 2,
+    eos_string= '</s>'
+):
+    results= [()] * n_examples
+    for idx in range(n_examples):
+        print('\nExample %d ========\n' % idx)
+        b= next(iter(valid_dataloader))
+        rb= Batch(b[0], b[1], pad_idx)
+
+        src_tokens= [
+            vocab_src.get_itos()[x] for x in rb.src[0] if x != pad_idx
+        ]
+        tgt_tokens= [
+            vocab_tgt.get_itos()[x] for x in rb.tgt[0] if x != pad_idx
+        ]
+
+        print(
+            'Source txt (input)      :'
+            + " ".join(src_tokens).replace('\n', '')
+        )
+        print(
+            'Target txt (output)     :'
+            + " ".join(tgt_tokens).replace('\n', '')
+        )
+
+        model_out= greedy_decode(model, rb.src, rb.src_mask, 72, vocab_tgt["<s>"])[0]
+        model_txt= (
+            " ".join(
+                [vocab_tgt.get_itos()[x] for x in model_out if x != pad_idx]
+            ).split(eos_string, 1)[0]
+            + eos_string
+        )
+        print(
+            'Model output (predicted):' + model_txt.replace('\n', '')
+        )
+        results[idx]= (rb, src_tokens, tgt_tokens, model_out, model_txt)
+
+    return results
+
+def run_model_example(n_examples= 5):
+    global vocab_src, vocab_tgt, spacy_de, spacy_en
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    print('Preparing data ...')
+    _, valid_dataloader= create_dataloaders(
+        torch.device('cpu'),
+        vocab_src,
+        vocab_tgt,
+        spacy_de,
+        spacy_en,
+        batch_size= 1,
+        max_padding= 72,
+        is_distributed= False
+    )
+
+    print('Loading trained model ...')
+    model= load_trained_model()
+
+    print('Checking model outputs:')
+    example_data= check_outputs(
+        valid_dataloader,
+        model,
+        vocab_src,
+        vocab_tgt,
+        n_examples= n_examples,
+        pad_idx= vocab_src["<blank>"],
+    )
+
+    return example_data
+
+
+
+
+
+# def translate_sentence(model, sentence, spacy_en, spacy_de, vocab_src, vocab_tgt, device='cpu', max_len=72):
+#     model.eval()
+
+#     tokens = [tok.text for tok in spacy_en(sentence)]
+#     # print(vocab_src["<s>"], vocab_src["</s>"])
+#     # for i, token in enumerate(vocab_src.get_stoi()):
+#     #     print(i, token)
+#     #     if i > 20:
+#     #         break
+#     src_ids = [vocab_tgt["<s>"]] + [
+#         vocab_tgt[token] if token in vocab_tgt else vocab_tgt["<unk>"] for token in tokens
+#     ] + [vocab_tgt["</s>"]]
+#     src_tensor = torch.tensor(src_ids, dtype=torch.int64).unsqueeze(0).to(device)
+#     src_mask = (src_tensor != vocab_tgt["<blank>"]).unsqueeze(-2)
+
+#     with torch.no_grad():
+#         out_ids = greedy_decode(model, src_tensor, src_mask, max_len, vocab_tgt["<s>"])
+
+#     out_ids = out_ids.squeeze().tolist()
+#     if vocab_src["</s>"] in out_ids:
+#         eos_idx = out_ids.index(vocab_src["</s>"])
+#         out_ids = out_ids[1:eos_idx]
+#     else:
+#         out_ids = out_ids[1:]
+
+#     inv_vocab = {v: k for k, v in vocab_src.get_stoi().items()}
+#     tokens = [inv_vocab.get(i, "<unk>") for i in out_ids]
+#     return " ".join(tokens)
 
 if __name__ == '__main__':
-    load_trained_model()
+    # model = load_trained_model()
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # model = model.to(device)
+    # print('Please enter a sentence to translate, and press Enter to translate it into German. Press Enter again to exit.')
+    # while True:
+    #     try:
+    #         sentence = input("English: ").strip()
+    #     except EOFError:
+    #         break
+    #     if not sentence:
+    #         break
+    #     translation = translate_sentence(model, sentence, spacy_en, spacy_de, vocab_src, vocab_tgt, device=device)
+    #     print("German :", translation)
+
+    run_model_example()
 
